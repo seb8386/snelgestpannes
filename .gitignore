@@ -1,0 +1,9 @@
+venv/
+.venv/
+node_modules/
+.next/
+build/
+.dart_tool/
+*.pyc
+__pycache__/
+.env
