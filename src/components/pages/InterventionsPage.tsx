@@ -9,11 +9,13 @@ import {
   Edit,
   FileText,
   CheckCircle,
+  Printer,
 } from "lucide-react";
 import { StatutBadge } from "@/components/ui/Badge";
 import { canCreateIntervention } from "@/lib/roles";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { BonDepannagePrint } from "@/components/print/BonDepannagePrint";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -29,6 +31,7 @@ interface Intervention {
   dateFin: string | null;
   localisationRec: string | null;
   descriptionRec: string | null;
+  typePanneRec: string | null;
   nomTechnicien: string | null;
   reclamationId: number | null;
   utilisateurIdRec: number | null;
@@ -51,6 +54,7 @@ export function InterventionsPage({ user }: Props) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedInt, setSelectedInt] = useState<Intervention | null>(null);
+  const [printInt, setPrintInt] = useState<Intervention | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const [formOTId, setFormOTId] = useState("");
@@ -203,6 +207,13 @@ export function InterventionsPage({ user }: Props) {
                 </div>
 
                 <div className="flex gap-2 items-center">
+                  <button
+                    onClick={() => setPrintInt(intervention)}
+                    className="p-2 rounded-xl hover:bg-blue-50 text-blue-600 border border-gray-100"
+                    title="Imprimer le bon de dépannage"
+                  >
+                    <Printer size={15} />
+                  </button>
                   {canCreate && intervention.statut !== "terminee" && (
                     <button
                       onClick={() => {
@@ -341,6 +352,8 @@ export function InterventionsPage({ user }: Props) {
           </div>
         </form>
       </Modal>
+
+      {printInt && <BonDepannagePrint data={printInt} onClose={() => setPrintInt(null)} />}
     </div>
   );
 }

@@ -54,7 +54,7 @@ export function NouvelleReclamationForm({ onSuccess }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="card p-6 bg-gradient-to-r from-[#003087] to-blue-800 text-white">
+      <div className="card p-6 bg-linear-to-r from-[#003087] to-blue-800 text-white">
         <h2 className="text-xl font-bold">Soumettre une réclamation</h2>
         <p className="text-blue-100 text-sm mt-2">
           Décrivez votre panne. L'Agent IA analysera automatiquement votre demande et notifiera les équipes SNEL.

@@ -3,23 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type RoleKey = "superadmin" | "administrateur" | "cd" | "get" | "abonne";
-const roleLabels: Record<RoleKey, string> = {
-  superadmin: "Super utilisateur",
-  administrateur: "Administrateur",
-  cd: "Chef de Dépannage",
-  get: "GET",
-  abonne: "Abonné",
-};
-const loginRoles: RoleKey[] = ["superadmin", "administrateur", "cd", "get", "abonne"];
-
 interface LoginPageProps {
   initialMode?: "login" | "register";
 }
 
 export function LoginPage({ initialMode = "login" }: LoginPageProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
-  const [selectedRole, setSelectedRole] = useState<RoleKey>("abonne");
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -93,9 +82,9 @@ export function LoginPage({ initialMode = "login" }: LoginPageProps) {
       <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 min-h-[600px]">
         
         {/* --- SECTION GAUCHE : IDENTITÉ ET AVANTAGES --- */}
-        <section 
-          className="relative bg-[#003da5] text-white p-6 sm:p-8 flex flex-col justify-between bg-cover bg-center"
-          style={{ backgroundImage: "linear-gradient(to bottom, rgba(0, 61, 165, 0.9), rgba(0, 40, 110, 0.95)), url('/bg-pylone.jpg')" }}
+        <section
+          className="relative bg-[#003da5] text-white p-6 sm:p-8 flex flex-col justify-between overflow-hidden"
+          style={{ backgroundImage: "radial-gradient(circle at 15% 15%, rgba(255,255,255,0.08), transparent 45%), linear-gradient(160deg, #003da5 0%, #00286e 100%)" }}
         >
           {/* Logo et Titre Principal */}
           <div className="flex flex-col items-center text-center mt-4 sm:mt-6">
@@ -156,7 +145,7 @@ export function LoginPage({ initialMode = "login" }: LoginPageProps) {
                 {mode === "login" ? "Connexion" : "Inscription"}
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                {mode === "login" ? "Veuillez vous connecter pour accéder à votre compte" : "Remplissez les champs pour créer votre compte métier"}
+                {mode === "login" ? "Veuillez vous connecter pour accéder à votre compte" : "Créez votre compte abonné pour déclarer vos pannes"}
               </p>
             </div>
 
@@ -166,27 +155,17 @@ export function LoginPage({ initialMode = "login" }: LoginPageProps) {
 
             {/* Formulaire */}
             <form onSubmit={mode === "login" ? handleLogin : handleRegister} className="space-y-4">
-              
-              {/* Sélecteur de Rôle Interactif (Gras quand sélectionné) */}
-              <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5 px-1">Rôle Sélectionné</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {(Object.keys(roleLabels) as RoleKey[]).map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => setSelectedRole(role)}
-                      className={`text-xs px-3 py-1.5 rounded-md transition-all ${
-                        selectedRole === role 
-                          ? "bg-gray-200/80 text-gray-900 font-bold shadow-sm" // Devient gras avec fond légèrement plus sombre
-                          : "text-gray-600 font-normal hover:bg-gray-200/50" // Reste normal sinon
-                      }`}
-                    >
-                      {roleLabels[role]}
-                    </button>
-                  ))}
+
+              {mode === "register" && (
+                <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 text-blue-800 text-xs rounded-xl p-3">
+                  <span className="text-base leading-none">👤</span>
+                  <p>
+                    L&apos;inscription en ligne crée un compte <strong>abonné</strong>. Les comptes du
+                    personnel SNEL (administrateur, chef de dépannage, technicien GET) sont créés par un
+                    administrateur depuis la gestion des utilisateurs.
+                  </p>
                 </div>
-              </div>
+              )}
 
               {mode === "register" && (
                 <div className="space-y-1">

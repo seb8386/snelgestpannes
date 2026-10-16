@@ -9,11 +9,13 @@ import {
   AlertTriangle,
   Edit,
   Eye,
+  Printer,
 } from "lucide-react";
 import { StatutBadge, PrioriteBadge } from "@/components/ui/Badge";
 import { canCreateOT } from "@/lib/roles";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
+import { OrdreTravailPrint } from "@/components/print/OrdreTravailPrint";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -75,6 +77,7 @@ export function OrdresTravailPage({ user, initialReclamationId, onClearInitialRe
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedOT, setSelectedOT] = useState<OT | null>(null);
+  const [printOT, setPrintOT] = useState<OT | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const [formRecId, setFormRecId] = useState(initialReclamationId?.toString() || "");
@@ -230,6 +233,13 @@ export function OrdresTravailPage({ user, initialReclamationId, onClearInitialRe
                     className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"
                   >
                     <Eye size={15} />
+                  </button>
+                  <button
+                    onClick={() => setPrintOT(ot)}
+                    className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600"
+                    title="Imprimer l'ordre de travail"
+                  >
+                    <Printer size={15} />
                   </button>
                   {canCreate && (
                     <button
@@ -414,6 +424,13 @@ export function OrdresTravailPage({ user, initialReclamationId, onClearInitialRe
                 <span>Échéance: {format(new Date(selectedOT.dateEcheance), "dd MMMM yyyy à HH:mm", { locale: fr })}</span>
               </div>
             )}
+
+            <button
+              onClick={() => setPrintOT(selectedOT)}
+              className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              <Printer size={15} /> Imprimer le formulaire officiel
+            </button>
           </div>
         )}
       </Modal>
@@ -458,6 +475,8 @@ export function OrdresTravailPage({ user, initialReclamationId, onClearInitialRe
           </div>
         </form>
       </Modal>
+
+      {printOT && <OrdreTravailPrint data={printOT} onClose={() => setPrintOT(null)} />}
     </div>
   );
 }

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Application web intelligente de gestion des réclamations clients - Société Nationale d'Électricité, Centre de Vente et Service Kitambo",
   icons: {
-    icon: "/snel-logo.png",
+    icon: "/favicon.svg",
   },
 };
 

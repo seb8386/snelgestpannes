@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, X } from "lucide-react";
 import type { NavItem, Section } from "@/lib/navigation";
 
 export interface User {
@@ -18,6 +18,9 @@ interface SidebarProps {
   roleLabel: string;
   onNavigate: (section: Section) => void;
   onLogout: () => void;
+  /** Ouverture du tiroir mobile (sans effet à partir de lg, où la sidebar est toujours visible). */
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export function Sidebar({
@@ -27,10 +30,30 @@ export function Sidebar({
   roleLabel,
   onNavigate,
   onLogout,
+  mobileOpen = false,
+  onCloseMobile,
 }: SidebarProps) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 w-72 xl:w-80 shadow-2xl">
-      <div className="flex flex-col h-full bg-[#003087]">
+    <>
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={onCloseMobile}
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-72 xl:w-80 shadow-2xl transition-transform duration-200 ease-out lg:translate-x-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+      <div className="relative flex flex-col h-full bg-[#003087]">
+        <button
+          onClick={onCloseMobile}
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
+          aria-label="Fermer le menu"
+        >
+          <X size={20} />
+        </button>
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center text-yellow-400 font-bold text-sm">
@@ -64,7 +87,10 @@ export function Sidebar({
             return (
               <button
                 key={item.id}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => {
+                  onNavigate(item.id);
+                  onCloseMobile?.();
+                }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                   isActive
                     ? "bg-white/15 text-white font-semibold shadow-sm"
@@ -92,6 +118,7 @@ export function Sidebar({
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

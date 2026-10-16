@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { reclamations, interventions, ordresTravail, utilisateurs, abonnes } from "@/db/schema";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, inArray } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const [recCount, intCount, otCount, pannesParQuartier, pannesParCommune] = await Promise.all([
+    const [recCount, intCount, otCount, recResolues, pannesParQuartier, pannesParCommune] = await Promise.all([
       db.select({ value: count() }).from(reclamations),
       db.select({ value: count() }).from(interventions),
       db.select({ value: count() }).from(ordresTravail),
+      db.select({ value: count() }).from(reclamations).where(inArray(reclamations.statut, ["resolu", "ferme"])),
       db
         .select({ quartier: abonnes.quartier, total: count() })
         .from(reclamations)
@@ -27,10 +28,14 @@ export async function GET() {
         .limit(10),
     ]);
 
+    const totalRec = recCount[0].value;
+    const tauxResolution = totalRec > 0 ? Math.round((recResolues[0].value / totalRec) * 100) : 0;
+
     return NextResponse.json({
-      reclamations: { total: recCount[0].value },
+      reclamations: { total: totalRec },
       interventions: { total: intCount[0].value },
       ordresTravail: { total: otCount[0].value },
+      tauxResolution,
       pannesParQuartier: pannesParQuartier.map((item) => ({
         quartier: item.quartier ?? "Inconnu",
         total: item.total,

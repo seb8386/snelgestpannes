@@ -3,6 +3,6 @@
   "out": "./drizzle",
   "dialect": "mysql",
   "dbCredentials": {
-    "url": "mysql://root:@localhost:3306/snel_db"
+    "url": "mysql://sanji:wynnrckr@localhost:3306/snel_db"
   }
 }

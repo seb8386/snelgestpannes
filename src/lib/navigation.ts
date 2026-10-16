@@ -74,6 +74,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { id: "reclamations", label: "Consulter réclamations", icon: FileText },
     { id: "ordres-travail", label: "Valider & affecter OT", icon: ClipboardList },
     { id: "interventions", label: "Rapports d'intervention", icon: HardHat },
+    { id: "ia", label: "Agent IA", icon: Brain },
     { id: "notifications", label: "Notifications", icon: Bell },
   ],
   get: [

@@ -10,7 +10,7 @@ interface Props {
 export function SuperadminOverview({ onNavigate }: Props) {
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-white p-5">
+      <div className="rounded-2xl border border-yellow-200 bg-linear-to-r from-yellow-50 to-white p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-yellow-700">Super utilisateur</p>
         <h2 className="mt-1 text-xl font-black text-gray-900">Pilotage et administration du système</h2>
         <p className="mt-1 text-sm text-gray-600">

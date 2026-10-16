@@ -59,11 +59,24 @@ export function PrioriteBadge({ priorite }: { priorite: string }) {
   return <Badge variant={c.variant}>{c.label}</Badge>;
 }
 
+export const TYPE_PANNE_LABELS: Record<string, string> = {
+  coupure_secteur: "Coupure de secteur",
+  court_circuit: "Court-circuit",
+  surcharge: "Surcharge / Fluctuation",
+  probleme_compteur: "Problème de compteur",
+  probleme_cablage: "Problème de câblage",
+  autre: "Autre",
+};
+
+export function TypePanneBadge({ typePanne }: { typePanne: string }) {
+  return <Badge variant="info">{TYPE_PANNE_LABELS[typePanne] || typePanne}</Badge>;
+}
+
 export function RoleBadge({ role }: { role: string }) {
   const config: Record<string, { label: string; variant: BadgeProps["variant"] }> = {
     superadmin: { label: "Super utilisateur", variant: "warning" },
     administrateur: { label: "Administrateur", variant: "danger" },
-    cd: { label: "Chef Division", variant: "info" },
+    cd: { label: "Chef de Dépannage", variant: "info" },
     get: { label: "Technicien GET", variant: "warning" },
     abonne: { label: "Abonné", variant: "success" },
   };

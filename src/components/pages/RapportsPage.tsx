@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -14,22 +14,43 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { Download, RefreshCw } from "lucide-react";
+import { ChevronDown, Download, FileSpreadsheet, FileText, FileJson, RefreshCw } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
+import { RapportPrint, type RapportPrintData } from "@/components/print/RapportPrint";
 
 type Stats = {
   reclamations: { total: number };
   interventions: { total: number };
   ordresTravail: { total: number };
+  tauxResolution: number;
   pannesParQuartier: { quartier: string; total: number }[];
   pannesParCommune: { commune: string; total: number }[];
 };
 
 const COLORS = ["#003087", "#F5C518", "#E63329", "#16A34A", "#6366f1", "#f97316"];
 
+/** Échappe une valeur pour une cellule CSV (Excel/LibreOffice). */
+function csvCell(value: string | number): string {
+  const str = String(value);
+  return /[";\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+function downloadBlob(content: BlobPart, type: string, filename: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function RapportsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -46,23 +67,56 @@ export function RapportsPage() {
     load();
   }, []);
 
-  const handleExport = () => {
-    if (!stats) return;
-    const report = {
-      date: new Date().toISOString(),
-      reclamations: stats.reclamations.total,
-      interventions: stats.interventions.total,
-      ordresTravail: stats.ordresTravail.total,
-      pannesParQuartier: stats.pannesParQuartier,
-      pannesParCommune: stats.pannesParCommune,
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
     };
-    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rapport-snel-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const todayStamp = new Date().toISOString().slice(0, 10);
+
+  const handleExportJSON = () => {
+    if (!stats) return;
+    downloadBlob(
+      JSON.stringify({ date: new Date().toISOString(), ...stats }, null, 2),
+      "application/json",
+      `rapport-snel-${todayStamp}.json`
+    );
+    setShowExportMenu(false);
+  };
+
+  const handleExportExcel = () => {
+    if (!stats) return;
+    const lines: string[] = [];
+    lines.push("Rapport SNEL CVS Kitambo");
+    lines.push(`Généré le;${new Date().toLocaleString("fr-FR")}`);
+    lines.push("");
+    lines.push("Indicateur;Valeur");
+    lines.push(`Total réclamations;${stats.reclamations.total}`);
+    lines.push(`Interventions;${stats.interventions.total}`);
+    lines.push(`Ordres de travail;${stats.ordresTravail.total}`);
+    lines.push(`Taux de résolution;${stats.tauxResolution}%`);
+    lines.push("");
+    lines.push("Pannes par quartier");
+    lines.push("Quartier;Total");
+    stats.pannesParQuartier.forEach((p) => lines.push(`${csvCell(p.quartier)};${p.total}`));
+    lines.push("");
+    lines.push("Répartition par commune");
+    lines.push("Commune;Total");
+    stats.pannesParCommune.forEach((p) => lines.push(`${csvCell(p.commune)};${p.total}`));
+
+    // BOM pour qu'Excel détecte l'UTF-8 correctement
+    downloadBlob("﻿" + lines.join("\n"), "text/csv;charset=utf-8", `rapport-snel-${todayStamp}.csv`);
+    setShowExportMenu(false);
+  };
+
+  const handleExportPDF = () => {
+    setShowPrint(true);
+    setShowExportMenu(false);
   };
 
   if (loading) {
@@ -83,9 +137,46 @@ export function RapportsPage() {
           <button onClick={load} className="p-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50">
             <RefreshCw size={16} className="text-gray-500" />
           </button>
-          <button onClick={handleExport} className="btn-primary flex items-center gap-2 text-sm px-4 py-2.5">
-            <Download size={16} /> Exporter le rapport
-          </button>
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              onClick={() => setShowExportMenu((v) => !v)}
+              disabled={!stats}
+              className="btn-primary flex items-center gap-2 text-sm px-4 py-2.5 disabled:opacity-60"
+            >
+              <Download size={16} /> Exporter le rapport <ChevronDown size={14} />
+            </button>
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-fade-in">
+                <button
+                  onClick={handleExportPDF}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 text-left"
+                >
+                  <FileText size={16} className="text-red-500" />
+                  <span>
+                    PDF <span className="block text-xs text-gray-400">Document imprimable</span>
+                  </span>
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 text-left border-t border-gray-50"
+                >
+                  <FileSpreadsheet size={16} className="text-green-600" />
+                  <span>
+                    Excel (.csv) <span className="block text-xs text-gray-400">Tableaux pour tableur</span>
+                  </span>
+                </button>
+                <button
+                  onClick={handleExportJSON}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 text-left border-t border-gray-50"
+                >
+                  <FileJson size={16} className="text-blue-600" />
+                  <span>
+                    JSON <span className="block text-xs text-gray-400">Données brutes</span>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -154,6 +245,10 @@ export function RapportsPage() {
           </div>
         </div>
       </div>
+
+      {showPrint && stats && (
+        <RapportPrint data={stats as RapportPrintData} onClose={() => setShowPrint(false)} />
+      )}
     </div>
   );
 }

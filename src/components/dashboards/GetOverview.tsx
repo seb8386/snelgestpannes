@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Section } from "@/lib/navigation";
+import { AgentIACard } from "@/components/dashboards/AgentIACard";
 
 type OT = {
   id: number;
@@ -85,13 +86,23 @@ export function GetOverview({ onNavigate }: Props) {
         )}
       </div>
 
-      <button
-        onClick={() => onNavigate("interventions")}
-        className="card p-5 w-full text-left hover:ring-2 hover:ring-[#003087]/20"
-      >
-        <h3 className="font-bold text-gray-900">Envoyer un rapport d'intervention</h3>
-        <p className="text-sm text-gray-500 mt-1">Documentez vos travaux, matériels utilisés et résultats obtenus</p>
-      </button>
+      <div className="grid lg:grid-cols-2 gap-6">
+        <button
+          onClick={() => onNavigate("interventions")}
+          className="card p-5 w-full text-left hover:ring-2 hover:ring-[#003087]/20"
+        >
+          <h3 className="font-bold text-gray-900">Envoyer un rapport d'intervention</h3>
+          <p className="text-sm text-gray-500 mt-1">Documentez vos travaux, matériels utilisés et résultats obtenus</p>
+        </button>
+
+        <AgentIACard
+          defaultMessage="Lancez l'analyse IA pour organiser votre plan de terrain."
+          stats={{
+            missionsActives: actives.length,
+            missionsUrgentes: urgentes.length,
+          }}
+        />
+      </div>
     </div>
   );
 }

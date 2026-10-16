@@ -15,6 +15,7 @@ import {
   Crown,
 } from "lucide-react";
 import { ASSIGNABLE_ROLES, canMutateUser } from "@/lib/roles";
+import { ROLE_LABELS } from "@/lib/navigation";
 import { RoleBadge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
@@ -307,10 +308,9 @@ export function UtilisateursPage({ currentUserId, currentUserRole }: Props) {
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Rôle *</label>
               <select value={formRole} onChange={(e) => setFormRole(e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm">
-                <option value="administrateur">Administrateur</option>
-                <option value="cd">Chef de Deppanage </option>
-                <option value="get">Technicien GET</option>
-                <option value="abonne">Abonné</option>
+                {assignableRoles.map((role) => (
+                  <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -337,10 +337,9 @@ export function UtilisateursPage({ currentUserId, currentUserRole }: Props) {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Rôle</label>
             <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm">
-              <option value="administrateur">Administrateur</option>
-              <option value="cd">Chef de Depannage</option>
-              <option value="get">Technicien GET</option>
-              <option value="abonne">Abonné</option>
+              {assignableRoles.map((role) => (
+                <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+              ))}
             </select>
           </div>
           <div>

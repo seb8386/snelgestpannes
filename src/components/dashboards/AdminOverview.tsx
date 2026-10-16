@@ -11,11 +11,13 @@ import {
   YAxis,
 } from "recharts";
 import type { Section } from "@/lib/navigation";
+import { AgentIACard } from "@/components/dashboards/AgentIACard";
 
 type DashboardStats = {
   reclamations: { total: number };
   interventions: { total: number };
   ordresTravail: { total: number };
+  tauxResolution: number;
   pannesParQuartier: { quartier: string; total: number }[];
 };
 
@@ -25,8 +27,6 @@ interface Props {
 
 export function AdminOverview({ onNavigate }: Props) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [iaResponse, setIaResponse] = useState("Lancez l'analyse IA pour un diagnostic du réseau.");
-  const [loadingIA, setLoadingIA] = useState(false);
 
   useEffect(() => {
     fetch("/api/dashboard/stats")
@@ -34,28 +34,6 @@ export function AdminOverview({ onNavigate }: Props) {
       .then(setStats)
       .catch(console.error);
   }, []);
-
-  const handleRunIA = async () => {
-    setLoadingIA(true);
-    try {
-      const res = await fetch("/api/ia/analyser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role: "administrateur",
-          stats: {
-            pannesActives: stats?.reclamations?.total ?? 0,
-            ordresTravail: { enAttente: stats?.ordresTravail?.total ?? 0 },
-            tauxResolution: 82,
-          },
-        }),
-      });
-      const data = await res.json();
-      setIaResponse(data.resultat || "Aucun résultat.");
-    } finally {
-      setLoadingIA(false);
-    }
-  };
 
   const chartData =
     stats?.pannesParQuartier?.length
@@ -69,7 +47,7 @@ export function AdminOverview({ onNavigate }: Props) {
           { label: "Réclamations", value: stats?.reclamations?.total ?? 0, action: "reclamations" as Section },
           { label: "Interventions", value: stats?.interventions?.total ?? 0, action: "interventions" as Section },
           { label: "Ordres de travail", value: stats?.ordresTravail?.total ?? 0, action: "ordres-travail" as Section },
-          { label: "Taux résolution", value: "82%", action: "rapports" as Section },
+          { label: "Taux résolution", value: `${stats?.tauxResolution ?? 0}%`, action: "rapports" as Section },
         ].map((s) => (
           <button
             key={s.label}
@@ -110,26 +88,17 @@ export function AdminOverview({ onNavigate }: Props) {
           </div>
         </div>
 
-        <div className="card p-6 bg-gradient-to-br from-[#003087] to-[#001a4d] text-white">
-          <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider">Agent IA SNEL</p>
-          <h2 className="text-lg font-bold mt-2">Diagnostic intelligent</h2>
-          <p className="text-blue-200 text-sm mt-2">{iaResponse}</p>
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={handleRunIA}
-              disabled={loadingIA}
-              className="px-4 py-2 bg-yellow-400 text-[#003087] rounded-xl text-sm font-bold hover:bg-yellow-300 disabled:opacity-60"
-            >
-              {loadingIA ? "Analyse..." : "Lancer l'IA"}
-            </button>
-            <button
-              onClick={() => onNavigate("ia")}
-              className="px-4 py-2 bg-white/10 rounded-xl text-sm font-semibold hover:bg-white/20"
-            >
-              Module IA complet
-            </button>
-          </div>
-        </div>
+        <AgentIACard
+          defaultMessage="Lancez l'analyse IA pour un diagnostic du réseau."
+          stats={{
+            reclamationsTotal: stats?.reclamations?.total ?? 0,
+            interventionsTotal: stats?.interventions?.total ?? 0,
+            ordresTravailTotal: stats?.ordresTravail?.total ?? 0,
+            tauxResolution: stats?.tauxResolution ?? 0,
+            pannesParQuartier: stats?.pannesParQuartier ?? [],
+          }}
+          secondaryAction={{ label: "Module IA complet", onClick: () => onNavigate("ia") }}
+        />
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">

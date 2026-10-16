@@ -25,6 +25,7 @@ export async function GET() {
         dateFin: interventions.dateFin,
         localisationRec: reclamations.localisation,
         descriptionRec: reclamations.description,
+        typePanneRec: reclamations.typePanne,
         nomTechnicien: utilisateurs.nom,
         reclamationId: ordresTravail.reclamationId,
         utilisateurIdRec: reclamations.utilisateurId,

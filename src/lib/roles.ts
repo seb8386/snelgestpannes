@@ -53,7 +53,7 @@ export function canManageEquipes(role: string) {
 }
 
 export function canUseIAModule(role: string) {
-  return ["superadmin", "administrateur"].includes(role);
+  return ["superadmin", "administrateur", "cd"].includes(role);
 }
 
 export function isStaff(role: string) {

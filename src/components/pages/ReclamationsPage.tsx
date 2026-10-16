@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { RefreshCw, Plus, Brain, Eye } from "lucide-react";
 import { User } from "@/components/layout/Sidebar";
 import { canCreateOT } from "@/lib/roles";
-import { StatutBadge, PrioriteBadge } from "@/components/ui/Badge";
+import { StatutBadge, PrioriteBadge, TypePanneBadge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { format } from "date-fns";
@@ -92,6 +92,7 @@ export function ReclamationsPage({ user, onNavigateToOT }: ReclamationsPageProps
                     <span className="text-xs font-mono text-gray-400">#{rec.id}</span>
                     <StatutBadge statut={rec.statut} />
                     <PrioriteBadge priorite={rec.priorite} />
+                    <TypePanneBadge typePanne={rec.typePanne} />
                     {rec.scoreIa != null && (
                       <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full flex items-center gap-1">
                         <Brain size={12} /> IA {rec.scoreIa}/100
@@ -132,6 +133,7 @@ export function ReclamationsPage({ user, onNavigateToOT }: ReclamationsPageProps
             <div className="flex flex-wrap gap-2">
               <StatutBadge statut={selected.statut} />
               <PrioriteBadge priorite={selected.priorite} />
+              <TypePanneBadge typePanne={selected.typePanne} />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase">Description</p>

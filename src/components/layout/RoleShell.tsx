@@ -38,6 +38,7 @@ export function RoleShell({ role, initialSection = "dashboard" }: RoleShellProps
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<Section>(initialSection);
   const [initialRecId, setInitialRecId] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const refreshUser = useCallback(async () => {
     const res = await fetch("/api/auth/me");
@@ -122,7 +123,7 @@ export function RoleShell({ role, initialSection = "dashboard" }: RoleShellProps
       case "utilisateurs":
         return <UtilisateursPage currentUserId={user.id} currentUserRole={user.role} />;
       case "ia":
-        return <IAPage />;
+        return <IAPage onNavigateToOT={handleNavigateToOT} />;
       case "rapports":
         return <RapportsPage />;
       case "notifications":
@@ -134,24 +135,27 @@ export function RoleShell({ role, initialSection = "dashboard" }: RoleShellProps
 
   return (
     <div className="min-h-screen bg-[#f3f6ff]">
+      <Sidebar
+        user={user}
+        navItems={NAV_BY_ROLE[role]}
+        activeSection={activeSection}
+        roleLabel={ROLE_LABELS[role]}
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
       <div className="lg:flex">
-        <div className="hidden lg:block lg:w-72 xl:w-80 shrink-0">
-          <Sidebar
-            user={user}
-            navItems={NAV_BY_ROLE[role]}
-            activeSection={activeSection}
-            roleLabel={ROLE_LABELS[role]}
-            onNavigate={handleNavigate}
-            onLogout={handleLogout}
-          />
-        </div>
+        {/* Espaceur : réserve la largeur de la sidebar fixe à partir de lg, sans la dupliquer */}
+        <div className="hidden lg:block lg:w-72 xl:w-80 shrink-0" aria-hidden="true" />
 
-        <div className="flex-1 lg:ml-72 xl:ml-80 min-w-0">
+        <div className="flex-1 min-w-0">
           <Header
             title={SECTION_TITLES[activeSection]}
             subtitle={`${ROLE_LABELS[role]} · ${user.nom}`}
             nonLues={user.nonLues ?? 0}
             onNotificationsClick={() => handleNavigate("notifications")}
+            onMenuClick={() => setMobileMenuOpen(true)}
           />
           <main className="px-4 py-6 lg:px-8 lg:py-8 animate-fade-in">{renderSection()}</main>
         </div>
