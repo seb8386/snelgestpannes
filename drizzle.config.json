@@ -1,8 +1,8 @@
 {
   "schema": "./src/db/schema.ts",
   "out": "./drizzle",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "dbCredentials": {
-    "url": "mysql://root:@localhost:3306/snel_db"
+    "url": "postgresql://postgres:fataki0838654@db.tosbdvbkfmetdphjbilu.supabase.co:6543/postgres"
   }
 }

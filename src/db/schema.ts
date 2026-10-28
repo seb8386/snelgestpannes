@@ -1,22 +1,31 @@
-import { mysqlTable, int, varchar, text, boolean, mysqlEnum, timestamp } from "drizzle-orm/mysql-core";
+import { pgTable, serial, text, varchar, integer, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
+
+// Définition des enums PostgreSQL
+export const roleEnum = pgEnum('role', ["superadmin", "administrateur", "cd", "get", "abonne"]);
+export const typePanneEnum = pgEnum('type_panne', ['coupure_secteur', 'court_circuit', 'surcharge', 'probleme_compteur', 'probleme_cablage', 'autre']);
+export const statutReclamationEnum = pgEnum('statut_reclamation', ['en_attente', 'en_cours', 'resolu', 'ferme']);
+export const prioriteEnum = pgEnum('priorite', ['faible', 'moyenne', 'elevee']);
+export const statutOtEnum = pgEnum('statut_ot', ['valide', 'affecte', 'clos']);
+export const urgenceOtEnum = pgEnum('urgence_ot', ['normal', 'urgent', 'critique']);
+export const statutInterventionEnum = pgEnum('statut_intervention', ['planifiee', 'en_cours', 'terminee', 'annulee']);
 
 // Table utilisateurs
-export const utilisateurs = mysqlTable("utilisateurs", {
-  id: int("id").autoincrement().primaryKey(),
+export const utilisateurs = pgTable("utilisateurs", {
+  id: serial("id").primaryKey(),
   nom: varchar("nom", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   motDePasse: varchar("mot_de_passe", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["superadmin", "administrateur", "cd", "get", "abonne"]).notNull().default("abonne"),
+  role: roleEnum("role").notNull().default("abonne"),
   telephone: varchar("telephone", { length: 20 }),
   actif: boolean("actif").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Table abonnes
-export const abonnes = mysqlTable("abonnes", {
-  id: int("id").autoincrement().primaryKey(),
-  utilisateurId: int("utilisateur_id").notNull().references(() => utilisateurs.id),
+export const abonnes = pgTable("abonnes", {
+  id: serial("id").primaryKey(),
+  utilisateurId: integer("utilisateur_id").notNull().references(() => utilisateurs.id),
   numeroAbonne: varchar("numero_abonne", { length: 50 }).notNull().unique(),
   adresse: text("adresse").notNull(),
   commune: varchar("commune", { length: 100 }),
@@ -25,72 +34,72 @@ export const abonnes = mysqlTable("abonnes", {
 });
 
 // Table réclamations
-export const reclamations = mysqlTable("reclamations", {
-  id: int("id").autoincrement().primaryKey(),
-  utilisateurId: int("utilisateur_id").notNull().references(() => utilisateurs.id),
+export const reclamations = pgTable("reclamations", {
+  id: serial("id").primaryKey(),
+  utilisateurId: integer("utilisateur_id").notNull().references(() => utilisateurs.id),
   description: text("description").notNull(),
   localisation: varchar("localisation", { length: 500 }).notNull(),
-  typePanne: mysqlEnum("type_panne", ['coupure_secteur', 'court_circuit', 'surcharge', 'probleme_compteur', 'probleme_cablage', 'autre']).default('autre').notNull(),
-  statut: mysqlEnum("statut", ['en_attente', 'en_cours', 'resolu', 'ferme']).default('en_attente').notNull(),
-  priorite: mysqlEnum("priorite", ['faible', 'moyenne', 'elevee']).default('moyenne').notNull(),
-  scoreIa: int("score_ia"),
+  typePanne: typePanneEnum("type_panne").default('autre').notNull(),
+  statut: statutReclamationEnum("statut").default('en_attente').notNull(),
+  priorite: prioriteEnum("priorite").default('moyenne').notNull(),
+  scoreIa: integer("score_ia"),
   analyseIa: text("analyse_ia"),
   categorieIa: varchar("categorie_ia", { length: 255 }),
   dateReclamation: timestamp("date_reclamation").defaultNow().notNull(),
   dateResolution: timestamp("date_resolution"),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Table équipes
-export const equipes = mysqlTable("equipes", {
-  id: int("id").autoincrement().primaryKey(),
+export const equipes = pgTable("equipes", {
+  id: serial("id").primaryKey(),
   nom: varchar("nom", { length: 255 }).notNull(),
-  responsableId: int("responsable_id").references(() => utilisateurs.id),
+  responsableId: integer("responsable_id").references(() => utilisateurs.id),
   specialite: varchar("specialite", { length: 255 }),
   disponible: boolean("disponible").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Table ordres de travail
-export const ordresTravail = mysqlTable("ordres_travail", {
-  id: int("id").autoincrement().primaryKey(),
-  reclamationId: int("reclamation_id").notNull().references(() => reclamations.id),
-  creePar: int("cree_par").notNull().references(() => utilisateurs.id),
+export const ordresTravail = pgTable("ordres_travail", {
+  id: serial("id").primaryKey(),
+  reclamationId: integer("reclamation_id").notNull().references(() => reclamations.id),
+  creePar: integer("cree_par").notNull().references(() => utilisateurs.id),
   dateCreation: timestamp("date_creation").defaultNow().notNull(),
-  statut: mysqlEnum("statut", ['valide', 'affecte', 'clos']).default('valide').notNull(),
-  urgence: mysqlEnum("urgence", ['normal', 'urgent', 'critique']).default('normal').notNull(),
+  statut: statutOtEnum("statut").default('valide').notNull(),
+  urgence: urgenceOtEnum("urgence").default('normal').notNull(),
   instructions: text("instructions"),
-  equipeId: int("equipe_id").references(() => equipes.id),
+  equipeId: integer("equipe_id").references(() => equipes.id),
   dateEcheance: timestamp("date_echeance"),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Table membres équipe
-export const membresEquipe = mysqlTable("membres_equipe", {
-  id: int("id").autoincrement().primaryKey(),
-  equipeId: int("equipe_id").notNull().references(() => equipes.id),
-  utilisateurId: int("utilisateur_id").notNull().references(() => utilisateurs.id),
+export const membresEquipe = pgTable("membres_equipe", {
+  id: serial("id").primaryKey(),
+  equipeId: integer("equipe_id").notNull().references(() => equipes.id),
+  utilisateurId: integer("utilisateur_id").notNull().references(() => utilisateurs.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Table interventions
-export const interventions = mysqlTable("interventions", {
-  id: int("id").autoincrement().primaryKey(),
-  otId: int("ot_id").notNull().references(() => ordresTravail.id),
-  technicienId: int("technicien_id").references(() => utilisateurs.id),
+export const interventions = pgTable("interventions", {
+  id: serial("id").primaryKey(),
+  otId: integer("ot_id").notNull().references(() => ordresTravail.id),
+  technicienId: integer("technicien_id").references(() => utilisateurs.id),
   rapport: text("rapport"),
   resultat: text("resultat"),
-  statut: mysqlEnum("statut", ['planifiee', 'en_cours', 'terminee', 'annulee']).default('planifiee').notNull(),
+  statut: statutInterventionEnum("statut").default('planifiee').notNull(),
   materielsUtilises: text("materiels_utilises"),
   dateIntervention: timestamp("date_intervention").defaultNow().notNull(),
   dateFin: timestamp("date_fin"),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Table notifications
-export const notifications = mysqlTable("notifications", {
-  id: int("id").autoincrement().primaryKey(),
-  utilisateurId: int("utilisateur_id").notNull().references(() => utilisateurs.id),
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  utilisateurId: integer("utilisateur_id").notNull().references(() => utilisateurs.id),
   message: text("message").notNull(),
   titre: varchar("titre", { length: 255 }).notNull(),
   lue: boolean("lue").notNull().default(false),
