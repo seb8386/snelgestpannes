@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       role,
       nom: user.nom,
     });
+
     const response = NextResponse.json({
       success: true,
       user: {
