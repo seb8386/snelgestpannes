@@ -1,4 +1,4 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
@@ -11,5 +11,5 @@ if (!databaseUrl) {
 // Configuration du client PostgreSQL pour les environnements Serverless (Vercel)
 const client = postgres(databaseUrl, { prepare: false });
 
-// Initialisation de Drizzle avec le schéma PostgreSQL
-export const db = drizzle(client, { schema });
+// Initialisation de Drizzle avec un typage explicite PostgreSQL
+export const db: PostgresJsDatabase<typeof schema> = drizzle(client, { schema });
