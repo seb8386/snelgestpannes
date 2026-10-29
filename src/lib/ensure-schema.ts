@@ -1,17 +1,9 @@
-import { pool } from "@/db";
-
 let roleEnumReady = false;
 
-/** Étend l'ENUM MySQL pour inclure le rôle superadmin sans casser les données. */
+/** Supabase / PostgreSQL gère déjà l'ENUM via le schéma Drizzle. */
 export async function ensureRoleEnum() {
   if (roleEnumReady) return;
-  try {
-    await pool.query(
-      "ALTER TABLE utilisateurs MODIFY COLUMN role ENUM('superadmin','administrateur','cd','get','abonne') NOT NULL DEFAULT 'abonne'"
-    );
-    roleEnumReady = true;
-  } catch (error) {
-    console.error("ensureRoleEnum:", error);
-    roleEnumReady = true;
-  }
+  // Le rôle superadmin est déjà inclus dans le type pgEnum de Supabase
+  roleEnumReady = true;
+  return Promise.resolve();
 }

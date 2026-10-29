@@ -46,15 +46,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Nom requis" }, { status: 400 });
     }
 
-    const [insertResult] = await db
+    // Utilisation de .returning({ id: equipes.id }) pour récupérer l'ID en PostgreSQL
+    const [insertedEquipe] = await db
       .insert(equipes)
       .values({
         nom,
         specialite: specialite || null,
         responsableId: responsableId || null,
-      });
+      })
+      .returning({ id: equipes.id });
 
-    const newEquipeId = typeof insertResult.insertId === "number" ? insertResult.insertId : null;
+    const newEquipeId = insertedEquipe?.id;
     if (!newEquipeId) {
       return NextResponse.json({ error: "Impossible de créer l'équipe" }, { status: 500 });
     }

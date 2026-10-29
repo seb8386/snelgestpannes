@@ -31,14 +31,19 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(motDePasse, 10);
 
-    const [insertResult] = await db.insert(utilisateurs).values({
-      nom,
-      email,
-      motDePasse: hashedPassword,
-      role: "abonne",
-    });
+    // .returning({ id: utilisateurs.id }) permet de récupérer l'ID généré en PostgreSQL
+    const [insertedUser] = await db
+      .insert(utilisateurs)
+      .values({
+        nom,
+        email,
+        motDePasse: hashedPassword,
+        role: "abonne",
+      })
+      .returning({ id: utilisateurs.id });
 
-    const newUserId = typeof insertResult.insertId === "number" ? insertResult.insertId : null;
+    const newUserId = insertedUser?.id;
+
     if (newUserId) {
       await db.insert(abonnes).values({
         utilisateurId: newUserId,

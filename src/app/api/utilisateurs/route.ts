@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(motDePasse, 12);
 
-    const [insertResult] = await db
+    // Utilisation de .returning({ id: utilisateurs.id }) pour PostgreSQL
+    const [insertedUser] = await db
       .insert(utilisateurs)
       .values({
         nom,
@@ -72,9 +73,10 @@ export async function POST(request: NextRequest) {
         motDePasse: hashedPassword,
         role,
         telephone: telephone || null,
-      });
+      })
+      .returning({ id: utilisateurs.id });
 
-    const newUserId = typeof insertResult.insertId === "number" ? insertResult.insertId : null;
+    const newUserId = insertedUser?.id;
     if (!newUserId) {
       return NextResponse.json({ error: "Impossible de créer l'utilisateur" }, { status: 500 });
     }

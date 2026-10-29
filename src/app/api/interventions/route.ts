@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Ordre de travail introuvable" }, { status: 404 });
     }
 
-    const [insertResult] = await db
+    // Utilisation de .returning({ id: interventions.id }) pour PostgreSQL
+    const [insertedIntervention] = await db
       .insert(interventions)
       .values({
         otId,
@@ -86,9 +87,10 @@ export async function POST(request: NextRequest) {
         materielsUtilises: materielsUtilises || null,
         statut: statut || "planifiee",
         dateFin: statut === "terminee" ? new Date() : null,
-      });
+      })
+      .returning({ id: interventions.id });
 
-    const newInterventionId = typeof insertResult.insertId === "number" ? insertResult.insertId : null;
+    const newInterventionId = insertedIntervention?.id;
     if (!newInterventionId) {
       return NextResponse.json({ error: "Impossible de créer l'intervention" }, { status: 500 });
     }

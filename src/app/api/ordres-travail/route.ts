@@ -79,7 +79,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Réclamation introuvable" }, { status: 404 });
     }
 
-    const [insertResult] = await db
+    // Utilisation de .returning({ id: ordresTravail.id }) pour PostgreSQL
+    const [insertedOT] = await db
       .insert(ordresTravail)
       .values({
         reclamationId,
@@ -89,9 +90,10 @@ export async function POST(request: NextRequest) {
         equipeId: equipeId || null,
         dateEcheance: dateEcheance ? new Date(dateEcheance) : null,
         statut: equipeId ? "affecte" : "valide",
-      });
+      })
+      .returning({ id: ordresTravail.id });
 
-    const newOTId = typeof insertResult.insertId === "number" ? insertResult.insertId : null;
+    const newOTId = insertedOT?.id;
     if (!newOTId) {
       return NextResponse.json(
         { error: "Impossible de créer l'ordre de travail" },

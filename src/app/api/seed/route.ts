@@ -38,8 +38,8 @@ export async function POST() {
       motDePasse: await hash("SuperAdmin123"),
       role: "superadmin",
       telephone: "+243 80 000 0001",
-    });
-    const superId = typeof superResult.insertId === "number" ? superResult.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const superId = superResult?.id;
     if (!superId) throw new Error("Impossible de créer le super-utilisateur");
 
     const [adminResult] = await db.insert(utilisateurs).values({
@@ -48,8 +48,8 @@ export async function POST() {
       motDePasse: await hash("admin123"),
       role: "administrateur",
       telephone: "+243 81 234 5678",
-    });
-    const adminId = typeof adminResult.insertId === "number" ? adminResult.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const adminId = adminResult?.id;
     if (!adminId) throw new Error("Impossible de créer l'utilisateur administrateur");
 
     const [cdResult] = await db.insert(utilisateurs).values({
@@ -58,8 +58,8 @@ export async function POST() {
       motDePasse: await hash("cd1234"),
       role: "cd",
       telephone: "+243 82 345 6789",
-    });
-    const cdId = typeof cdResult.insertId === "number" ? cdResult.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const cdId = cdResult?.id;
     if (!cdId) throw new Error("Impossible de créer l'utilisateur CD");
 
     const [get1Result] = await db.insert(utilisateurs).values({
@@ -68,8 +68,8 @@ export async function POST() {
       motDePasse: await hash("get1234"),
       role: "get",
       telephone: "+243 83 456 7890",
-    });
-    const get1Id = typeof get1Result.insertId === "number" ? get1Result.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const get1Id = get1Result?.id;
     if (!get1Id) throw new Error("Impossible de créer l'utilisateur GET 1");
 
     const [get2Result] = await db.insert(utilisateurs).values({
@@ -78,8 +78,8 @@ export async function POST() {
       motDePasse: await hash("get1234"),
       role: "get",
       telephone: "+243 84 567 8901",
-    });
-    const get2Id = typeof get2Result.insertId === "number" ? get2Result.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const get2Id = get2Result?.id;
     if (!get2Id) throw new Error("Impossible de créer l'utilisateur GET 2");
 
     const [abonne1Result] = await db.insert(utilisateurs).values({
@@ -88,8 +88,8 @@ export async function POST() {
       motDePasse: await hash("abonne123"),
       role: "abonne",
       telephone: "+243 85 678 9012",
-    });
-    const abonne1Id = typeof abonne1Result.insertId === "number" ? abonne1Result.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const abonne1Id = abonne1Result?.id;
     if (!abonne1Id) throw new Error("Impossible de créer l'abonné 1");
 
     const [abonne2Result] = await db.insert(utilisateurs).values({
@@ -98,8 +98,8 @@ export async function POST() {
       motDePasse: await hash("abonne123"),
       role: "abonne",
       telephone: "+243 86 789 0123",
-    });
-    const abonne2Id = typeof abonne2Result.insertId === "number" ? abonne2Result.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const abonne2Id = abonne2Result?.id;
     if (!abonne2Id) throw new Error("Impossible de créer l'abonné 2");
 
     const [abonne3Result] = await db.insert(utilisateurs).values({
@@ -108,8 +108,8 @@ export async function POST() {
       motDePasse: await hash("abonne123"),
       role: "abonne",
       telephone: "+243 87 890 1234",
-    });
-    const abonne3Id = typeof abonne3Result.insertId === "number" ? abonne3Result.insertId : null;
+    }).returning({ id: utilisateurs.id });
+    const abonne3Id = abonne3Result?.id;
     if (!abonne3Id) throw new Error("Impossible de créer l'abonné 3");
 
     // Create abonnés profiles
@@ -143,8 +143,8 @@ export async function POST() {
       specialite: "Haute tension / Transformateurs",
       responsableId: get1Id,
       disponible: true,
-    });
-    const equipe1Id = typeof equipe1Result.insertId === "number" ? equipe1Result.insertId : null;
+    }).returning({ id: equipes.id });
+    const equipe1Id = equipe1Result?.id;
     if (!equipe1Id) throw new Error("Impossible de créer l'équipe 1");
 
     const [equipe2Result] = await db.insert(equipes).values({
@@ -152,8 +152,8 @@ export async function POST() {
       specialite: "Basse tension / Compteurs",
       responsableId: get2Id,
       disponible: true,
-    });
-    const equipe2Id = typeof equipe2Result.insertId === "number" ? equipe2Result.insertId : null;
+    }).returning({ id: equipes.id });
+    const equipe2Id = equipe2Result?.id;
     if (!equipe2Id) throw new Error("Impossible de créer l'équipe 2");
 
     // Create réclamations
@@ -169,8 +169,8 @@ export async function POST() {
       categorieIa: "Coupure de secteur",
       dateReclamation: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       dateResolution: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-    });
-    const rec1Id = typeof rec1Result.insertId === "number" ? rec1Result.insertId : null;
+    }).returning({ id: reclamations.id });
+    const rec1Id = rec1Result?.id;
     if (!rec1Id) throw new Error("Impossible de créer la réclamation 1");
 
     const [rec2Result] = await db.insert(reclamations).values({
@@ -184,8 +184,8 @@ export async function POST() {
       analyseIa: "⚠️ ALERTE IA: Court-circuit ou incident électrique grave détecté! Score critique: 95/100. INTERVENTION D'URGENCE REQUISE.",
       categorieIa: "Court-circuit / Urgence électrique",
       dateReclamation: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    });
-    const rec2Id = typeof rec2Result.insertId === "number" ? rec2Result.insertId : null;
+    }).returning({ id: reclamations.id });
+    const rec2Id = rec2Result?.id;
     if (!rec2Id) throw new Error("Impossible de créer la réclamation 2");
 
     const [rec3Result] = await db.insert(reclamations).values({
@@ -199,8 +199,8 @@ export async function POST() {
       analyseIa: "Analyse IA: Surcharge ou fluctuation de tension détectée. Score: 70/100.",
       categorieIa: "Surcharge / Fluctuation de tension",
       dateReclamation: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    });
-    const rec3Id = typeof rec3Result.insertId === "number" ? rec3Result.insertId : null;
+    }).returning({ id: reclamations.id });
+    const rec3Id = rec3Result?.id;
     if (!rec3Id) throw new Error("Impossible de créer la réclamation 3");
 
     const [rec4Result] = await db.insert(reclamations).values({
@@ -214,8 +214,8 @@ export async function POST() {
       analyseIa: "Analyse IA: Problème lié au système de comptage identifié. Score: 55/100.",
       categorieIa: "Problème de compteur",
       dateReclamation: new Date(Date.now() - 3 * 60 * 60 * 1000),
-    });
-    const rec4Id = typeof rec4Result.insertId === "number" ? rec4Result.insertId : null;
+    }).returning({ id: reclamations.id });
+    const rec4Id = rec4Result?.id;
     if (!rec4Id) throw new Error("Impossible de créer la réclamation 4");
 
     const [rec5Result] = await db.insert(reclamations).values({
@@ -229,8 +229,8 @@ export async function POST() {
       analyseIa: "Analyse IA: Problème d'infrastructure électrique détecté. Score: 88/100. Inspection des câbles nécessaire.",
       categorieIa: "Problème de câblage / Infrastructure",
       dateReclamation: new Date(Date.now() - 5 * 60 * 60 * 1000),
-    });
-    const rec5Id = typeof rec5Result.insertId === "number" ? rec5Result.insertId : null;
+    }).returning({ id: reclamations.id });
+    const rec5Id = rec5Result?.id;
     if (!rec5Id) throw new Error("Impossible de créer la réclamation 5");
 
     // Create OTs
@@ -243,8 +243,8 @@ export async function POST() {
       equipeId: equipe1Id,
       dateEcheance: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
       dateCreation: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    });
-    const ot1Id = typeof ot1Result.insertId === "number" ? ot1Result.insertId : null;
+    }).returning({ id: ordresTravail.id });
+    const ot1Id = ot1Result?.id;
     if (!ot1Id) throw new Error("Impossible de créer l'ordre de travail 1");
 
     const [ot2Result] = await db.insert(ordresTravail).values({
@@ -256,8 +256,8 @@ export async function POST() {
       equipeId: equipe1Id,
       dateEcheance: new Date(Date.now() + 2 * 60 * 60 * 1000),
       dateCreation: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    });
-    const ot2Id = typeof ot2Result.insertId === "number" ? ot2Result.insertId : null;
+    }).returning({ id: ordresTravail.id });
+    const ot2Id = ot2Result?.id;
     if (!ot2Id) throw new Error("Impossible de créer l'ordre de travail 2");
 
     const [ot3Result] = await db.insert(ordresTravail).values({
@@ -268,8 +268,8 @@ export async function POST() {
       instructions: "Sécuriser le câble tombé. Interdire l'accès à la zone. Réparer dans les 4h.",
       equipeId: equipe2Id,
       dateCreation: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    });
-    const ot3Id = typeof ot3Result.insertId === "number" ? ot3Result.insertId : null;
+    }).returning({ id: ordresTravail.id });
+    const ot3Id = ot3Result?.id;
     if (!ot3Id) throw new Error("Impossible de créer l'ordre de travail 3");
 
     // Create interventions
