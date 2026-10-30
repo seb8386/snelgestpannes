@@ -3,6 +3,6 @@
   "out": "./drizzle",
   "dialect": "postgresql",
   "dbCredentials": {
-    "url": "postgresql://postgres:fataki0838654@db.tosbdvbkfmetdphjbilu.supabase.co:6543/postgres"
+    "url": "postgresql://postgres.tosbdvbkfmetdphjbilu:fataki0838654@aws-0-eu-west-1.pooler.supabase.com:6543/postgres"
   }
 }
