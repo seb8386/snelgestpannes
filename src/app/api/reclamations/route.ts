@@ -42,11 +42,10 @@ export async function POST(req: Request) {
     }
 
     // A. Analyse par votre module IA
-    // Ajout du 'await' pour résoudre l'erreur de typage Promise
     const iaResult = await analyserReclamation(body.description);
 
-    // B. Insertion en base de données
-    const [insertRecResult] = await db.insert(reclamations).values({
+    // B. Insertion en base de données avec .returning() pour PostgreSQL
+    const [nouvelleReclamation] = await db.insert(reclamations).values({
       utilisateurId: authUser.userId as number,
       description: body.description,
       localisation: body.localisation,
@@ -55,14 +54,13 @@ export async function POST(req: Request) {
       analyseIa: iaResult.analyse,
       scoreIa: iaResult.scoreUrgence,
       statut: 'en_attente' as any,
-    });
+    }).returning(); // Récupère directement la ligne insérée
 
-    // Correction de l'accès à l'ID inséré selon la structure de votre driver DB
-    const newRecId = (insertRecResult as any).insertId || (insertRecResult as any).id;
-    
-    if (!newRecId) {
+    if (!nouvelleReclamation || !nouvelleReclamation.id) {
       return NextResponse.json({ error: "Impossible de récupérer l'ID de la réclamation" }, { status: 500 });
     }
+
+    const newRecId = nouvelleReclamation.id;
 
     // C. Envoi de notifications aux responsables SNEL
     const responsables = await db
@@ -82,14 +80,14 @@ export async function POST(req: Request) {
     // D. Automatisation : génération d'un OT si priorité élevée
     let autoOTId: number | null = null;
     if (iaResult.priorite === 'elevee') {
-      const [insertOtResult] = await db.insert(ordresTravail).values({
+      const [nouvelOt] = await db.insert(ordresTravail).values({
         reclamationId: newRecId,
         urgence: 'urgent' as any,
         statut: 'valide' as any,
         creePar: authUser.userId as number,
-      });
+      }).returning(); // Utilisation de .returning() ici aussi
 
-      autoOTId = (insertOtResult as any).insertId || (insertOtResult as any).id;
+      autoOTId = nouvelOt ? nouvelOt.id : null;
 
       const getMembers = await db
         .select({ userId: utilisateurs.id })
